@@ -31,10 +31,17 @@ if v:version < 700
 endif
 let g:loaded_temporal_marks = 1
 
-let s:temporal_marks = {}
+function s:GetTemporalMarks()
+    if ! exists('b:temporal_marks')
+        let b:temporal_marks = {}
+    endif
+
+    return b:temporal_marks
+endfunction
 
 function s:ListTemporalMarks()
-    let names  = keys(s:temporal_marks)
+    let marks  = s:GetTemporalMarks()
+    let names  = keys(marks)
     let maxlen = 0
 
     for k in names
@@ -45,18 +52,20 @@ function s:ListTemporalMarks()
 
     let format = "%" . maxlen . "s %s"
 
-    for m in sort(keys(s:temporal_marks))
-        echo printf(format, m, s:temporal_marks[m])
+    for m in sort(keys(marks))
+        echo printf(format, m, marks[m])
     endfor
 endfunction
 
 function s:AddTemporalMark(m)
-    let s:temporal_marks[a:m] = changenr()
+    let marks = s:GetTemporalMarks()
+    let marks[a:m] = changenr()
 endfunction
 
 function s:JumpToTemporalMark(m)
-    if has_key(s:temporal_marks, a:m)
-        execute "undo " . s:temporal_marks[a:m]
+    let marks = s:GetTemporalMarks()
+    if has_key(marks, a:m)
+        execute "undo " . marks[a:m]
     else
         echomsg "No such mark '" . a:m . "'"
     endif
